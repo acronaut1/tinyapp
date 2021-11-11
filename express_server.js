@@ -4,6 +4,12 @@ const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 
+function generateRandomString() {
+  // Generate [Random AlphaNumeric String]..
+  const rndStr = Math.random(2).toString(39).slice(2, 8);
+  console.log(rndStr);
+}
+
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended: true}));
 
@@ -16,6 +22,7 @@ const urlDatabase = {
 
 app.get("/", (req, res) => {
   res.send("Hello!");
+  generateRandomString();
 });
 
 app.get("/hello_HTML", (req, res) => {
@@ -53,6 +60,13 @@ app.get("/set", (req, res) => {
 
 app.get("/fetch", (req, res) => {
   res.send(`a = ${a}`);
+});
+
+
+
+app.post("/urls", (req, res) => {
+  console.log(req.body);  // Log the POST request body to the console
+  res.send("Ok");         // Respond with 'Ok' (we will replace this)
 });
 
 
