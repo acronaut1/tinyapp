@@ -46,7 +46,8 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-   const longURL = { longURL: req.body }; // <- NEED assist if correct ..
+   const longURL = req.body.longURL  // <- NEED assist if correct ..
+   //const longURL = urlDatabase[shortURL]    // <- NEED assist if correct ..
   res.redirect(longURL);
 });
 
@@ -60,22 +61,25 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-app.get("/set", (req, res) => {
-  const a = 1;
-  res.send(`a = ${a}`);
+// app.get("/set", (req, res) => {
+//   const a = 1;
+//   res.send(`a = ${a}`);
+// });
+
+// app.get("/fetch", (req, res) => {
+//   res.send(`a = ${a}`);
+// });
+
+app.post("/urls/:shortURL/delete", (req, res) => {
+  console.log('a Link have been Deleted!', req.params.shortURL);
+  delete urlDatabase[req.params.shortURL];
+  res.redirect("/urls");
 });
-
-app.get("/fetch", (req, res) => {
-  res.send(`a = ${a}`);
-});
-
-
 
 app.post("/urls", (req, res) => {
   console.log(req.body);  // Log the POST request body to the console
   res.send("Ok");         // Respond with 'Ok' (we will replace this)
 });
-
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
