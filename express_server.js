@@ -25,24 +25,31 @@ app.get("/", (req, res) => {
   generateRandomString();
 });
 
-app.get("/hello_HTML", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
 
-app.get("/hello_Vars", (req, res) => {
-  const templateVars = { greeting: 'Hello World!' };
-  res.render("hello_world", templateVars);
-});
+// app.get("/hello_HTML", (req, res) => {
+//   res.send("<html><body>Hello <b>World</b></body></html>\n");
+// });
+
+// app.get("/hello_Vars", (req, res) => {
+//   const templateVars = { greeting: 'Hello World!' };
+//   res.render("hello_world", templateVars);
+// });
+
 
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
-
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], };
   res.render("urls_show", templateVars);
 });
+
+app.get("/u/:shortURL", (req, res) => {
+   const longURL = { longURL: req.body }; // <- NEED assist if correct ..
+  res.redirect(longURL);
+});
+
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
