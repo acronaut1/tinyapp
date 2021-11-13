@@ -27,6 +27,7 @@
     "morgan": "^1.10.0"
   },
   "devDependencies": {
+    "cookie-parser": "^1.4.5",
     "nodemon": "^2.0.15"
   }
 }
