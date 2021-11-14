@@ -109,6 +109,8 @@ const validInputCheck = (email, password) => {
 };
 
 const getUserByEmail = (email) => {
+  console.log(`GUBE_users-obj:`, users);
+  console.log(`pre-forloopEmail:`, email);
   for (const user in users) {
     if (email === users[user].email) {
       return users[user];
@@ -188,8 +190,8 @@ app.post("/register", (req, res) => {
   const id = generateRandomString();
   // (eNp = email AND password..)
   const eNp = validInputCheck(email, password);
-  console.log(`email,password:`, email,password);
-  console.log(`eNp:`, eNp);
+  //console.log(`email,password:`, email,password);
+  //console.log(`eNp:`, eNp);
   if (!eNp) {
     return res.status(403).send("Please enter BOTH Email & Password..");
   }
@@ -199,6 +201,7 @@ app.post("/register", (req, res) => {
   }
   console.log(email, password);
   users[id] = { id, email, password};
+  console.log(`users-obj:`, users);
   res.cookie("user_id", id);
   res.redirect("/urls");
 });
@@ -208,17 +211,19 @@ app.post("/login", (req, res) => {
   //const user_id = req.body.user_id;
   const email = req.body.email;
   const password = req.body.password;
-  const user_id = getUserByEmail(email);
-  if (!user_id) {
-    res.status(403).send("Email does not exist...");
+  const user = getUserByEmail(email);
+  
+  // console.log(`req.body:`, req.body); // to check..
+  // Filter out the stuff I don't want first...
+  if (!user) {
+    return res.status(400).send("Email does not exist: <a href='/login'>Try Again</a>");
   }
-  const checkPassword = passwordCheck(user_id, password);
+  const checkPassword = passwordCheck(user, password);
   if (!checkPassword) {
-    res.status(403).send("Wrong Password");
+    return res.status(403).send("Invalid Credentials: <a href='/login'>Try Again</a>");
   }
-  console.log('Logged IN...', user_id);
-  res.cookie('user_id', user_id);
-  console.log(`users:`, users);
+  console.log('Logged IN...', user);
+  res.cookie('user_id', user.id);
   res.redirect("/urls");
 });
 
