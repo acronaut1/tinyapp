@@ -57,14 +57,14 @@ app.get("/", (req, res) => {
 
 // **CREATE**[URLS: Create New URL]
 app.get("/urls/new", (req, res) => {
-  const userEdit = req.cookies.username;
+  const userEdit = req.cookies.user_id;
   const templateVars = { user: users[req.cookies.user_id] };  
   res.render("urls_new", templateVars);
 });
 
 // **VIEW**[URLS: Display shortenURL]
 app.get("/urls/:shortURL", (req, res) => {
-  const userEdit = req.cookies.username;
+  const userEdit = req.cookies.user_id;
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: users[req.cookies.user_id] };
   res.render("urls_show", templateVars);
 });
@@ -75,6 +75,7 @@ app.get("/u/:shortURL", (req, res) => {
   console.log(`longURL:`, longURL);
   res.redirect(longURL);
 });
+
 
 // [DEBUG][URLS: Urls JSON]
 app.get("/urls.json", (req, res) => {
@@ -146,7 +147,7 @@ app.get('/login', (req, res) => {
 // **REGISTER**
 app.get("/register", (req, res) => {
   //const templateVars = { urls: urlDatabase,
-  //  username: req.cookies.username };
+  //  user_id: req.cookies.user_id };
   let templateVars = { user: users[req.cookies.user_id] };
   res.render("usr_register", templateVars);
 });
@@ -166,6 +167,14 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
   res.redirect("/urls");
 });
+
+// LOOK AT THIS CHANGE LOOK AT THIS CHANGE LOOK AT THIS CHANGE LOOK AT THIS
+app.post("/urls/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL;
+  const longURL = req.body.longURL;
+  urlDatabase[shortURL] = longURL;
+  res.redirect("/urls");
+})
 
 // app.post("/urls", (req, res) => {
 //   console.log(req.body);  // Log the POST request body to the console
@@ -197,7 +206,7 @@ app.post("/register", (req, res) => {
   }
   const user = getUserByEmail(email);
   if (user) {
-    return res.status(403).send("Please enter unique email");
+    return res.status(403).send("Email already Exist! <a href='/login'>Try Again</a>");
   }
   console.log(email, password);
   users[id] = { id, email, password};
@@ -206,7 +215,7 @@ app.post("/register", (req, res) => {
   res.redirect("/urls");
 });
 
-// UserName gets Logged in..
+// User_id gets Logged in..
 app.post("/login", (req, res) => {
   //const user_id = req.body.user_id;
   const email = req.body.email;
@@ -216,7 +225,7 @@ app.post("/login", (req, res) => {
   // console.log(`req.body:`, req.body); // to check..
   // Filter out the stuff I don't want first...
   if (!user) {
-    return res.status(400).send("Email does not exist: <a href='/login'>Try Again</a>");
+    return res.status(400).send("Sorry, Invalid Credential: <a href='/login'>Try Again</a>");
   }
   const checkPassword = passwordCheck(user, password);
   if (!checkPassword) {
