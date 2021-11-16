@@ -4,6 +4,7 @@ const app = express();
 const PORT = 8081; // default port 8080
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcryptjs');
 
 function generateRandomString() {
   // Generate [Random AlphaNumeric String]..
@@ -12,16 +13,18 @@ function generateRandomString() {
   return rndStr;
 }
 
+
 const users = {
   userRandomID: {
     id: "userRandomID",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur",
+    password: bcrypt.hashSync("purple-monkey-dinosaur", 10),
+    
   },
   user2RandomID: {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: "dishwasher-funk",
+    password: bcrypt.hashSync("dishwasher-funk", 10),
   },
 };
 
@@ -151,7 +154,7 @@ const passwordCheck = (user, password) => {
   if (user === null) {
     return null;
   }
-  return user.password === password;
+  return bcrypt.compareSync(password, user.password);
 };
 
 
@@ -169,6 +172,14 @@ app.get("/urls", (req, res) => {
   };
   res.render("urls_index", templateVars);
 });
+
+
+// bcrypt.hash(myPlaintextPassword, saltRounds, function(err, hash) {
+//   // Store hash in your password DB.
+// });
+
+
+
 
 // login page****
 app.get('/login', (req, res) => {
@@ -207,6 +218,11 @@ app.get("/register", (req, res) => {
 
 // **DELETE** ShortenURL Link
 app.post("/urls/:shortURL/delete", (req, res) => {
+  const userID = req.cookies['user_id'];
+  const user = users[userID];
+  if (!user) {
+    return res.redirect('/login');
+  }
   console.log('a Link have been Deleted!', req.params.shortURL);
   delete urlDatabase[req.params.shortURL];
   res.redirect("/urls");
@@ -250,6 +266,7 @@ app.post('/urls', (req, res) => {
 app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
+  const hashedPassword = bcrypt.hashSync(password, 10);
 
   const id = generateRandomString();
   // (eNp = email AND password..)
@@ -262,9 +279,10 @@ app.post("/register", (req, res) => {
     return res.status(403).send("Email already Exist! <a href='/login'>Try Again</a>");
   }
   //console.log(email, password);
-  users[id] = { id, email, password};
+  users[id] = { id, email, password: hashedPassword};
   res.cookie("user_id", id);
   res.redirect("/urls");
+
 });
 
 // User_id gets Logged in..
@@ -273,7 +291,7 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const user = getUserByEmail(email);
-  
+
   if (!user) {
     return res.status(400).send("Sorry, Invalid Credential: <a href='/login'>Try Again</a>");
   }
@@ -281,6 +299,7 @@ app.post("/login", (req, res) => {
   if (!checkPassword) {
     return res.status(403).send("Invalid Credentials: <a href='/login'>Try Again</a>");
   }
+  console.log(users);
   res.cookie('user_id', user.id);
   res.redirect("/urls");
 });
