@@ -18,7 +18,6 @@ const users = {
     id: "userRandomID",
     email: "user@example.com",
     password: bcrypt.hashSync("purple-monkey-dinosaur", 10),
-    
   },
   user2RandomID: {
     id: "user2RandomID",
@@ -29,18 +28,18 @@ const users = {
 
 const urlDatabase = {
   b6UTxQ: {
-      longURL: "https://www.tsn.ca",
-      userID: "aJ48lW"
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW"
   },
   i3BoGr: {
-      longURL: "https://www.google.ca",
-      userID: "aJ48lW"
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW"
   }
 };
 
 // [Mogan]: Middleware Logger..
 app.use(morgan('dev'));
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(
   cookieSession({
@@ -48,7 +47,7 @@ app.use(
     keys: ['email', 'password'],
 
     // 24 hours
-    maxAge: 24 * 60 * 60 * 1000, 
+    maxAge: 24 * 60 * 60 * 1000,
   })
 );
 
@@ -71,17 +70,17 @@ app.get("/urls/new", (req, res) => {
   if (!user) {
     return res.redirect("/login");
   }
-  const templateVars = { 
+  const templateVars = {
     user: users[req.session.user_id]
-  };  
+  };
   res.render("urls_new", templateVars);
 });
 
 // **VIEW**[URLS: Display shortenURL]
 app.get("/urls/:shortURL", (req, res) => {
   const userEdit = req.session.user_id;
-  const templateVars = { 
-    shortURL: req.params.shortURL, 
+  const templateVars = {
+    shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
     user: users[req.session.user_id]
   };
@@ -114,7 +113,7 @@ const getUserUrls = (user_id) => {
   for (let i in urlDatabase) {
     let url = urlDatabase[i];
     if (url.userID === user_id) {
-      urls[i] = url; 
+      urls[i] = url;
     }
   }
   return urls;
@@ -135,7 +134,7 @@ app.get("/urls", (req, res) => {
   if (!user) {
     return res.redirect("/login");
   }
-  const templateVars = { 
+  const templateVars = {
     urls: getUserUrls(id),
     user: users[req.session.user_id],
   };
@@ -180,7 +179,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
   res.redirect("/urls");
 });
- 
+
 
 // **CREATE** Shorted URL -> Return to User's List..
 app.post("/urls/:shortURL", (req, res) => {
@@ -202,13 +201,13 @@ app.post('/urls', (req, res) => {
   if (!user) {
     return res.redirect("/login");
   }
-  
+
   const shortURL = generateRandomString();
   const longURL = req.body.longURL;
 
-  urlDatabase[shortURL] = { 
-    longURL : longURL,
-    userID : req.session.user_id
+  urlDatabase[shortURL] = {
+    longURL: longURL,
+    userID: req.session.user_id
   };
   console.log('User:', req.session.user_id, ' Shorted ', req.body.longURL, ' with ', shortURL);
   res.redirect(`/urls/${shortURL}`);
@@ -219,10 +218,10 @@ app.post("/register", (req, res) => {
   const password = req.body.password;
   const hashedPassword = bcrypt.hashSync(password, 10);
   const id = generateRandomString();
-  
+
   // (eNp = email AND password..)
   const eNp = validInputCheck(email, password);
-  
+
   if (!eNp) {
     return res.status(403).send("Please enter BOTH Email & Password..");
   }
@@ -230,8 +229,8 @@ app.post("/register", (req, res) => {
   if (user) {
     return res.status(403).send("Email already Exist! <a href='/login'>Try Again</a>");
   }
-  users[id] = { id, email, password: hashedPassword};
-  req.session.user_id = id;   
+  users[id] = { id, email, password: hashedPassword };
+  req.session.user_id = id;
   res.redirect("/urls");
 });
 
